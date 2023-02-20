@@ -1,10 +1,10 @@
 package validator
 
 import (
-	"github.com/go-playground/locales/zh"
+	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	zh_translations "github.com/go-playground/validator/v10/translations/zh"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
 )
 
 type Translations struct {
@@ -36,10 +36,11 @@ var translationsArray = []Translations{
 }
 
 func init() {
-	e := zh.New()
+	e := en.New()
 	uni := ut.New(e, e)
+
 	// 默认元空间
-	tra, _ = uni.GetTranslator("zh")
+	tra, _ = uni.GetTranslator("en")
 }
 
 func NewDefaultTranslations(tags ...string) (res []Translations) {
@@ -66,7 +67,7 @@ func defaultTranslation(tag string, ut ut.Translator, fe validator.FieldError) s
 }
 
 func RegisterTranslations(validate *validator.Validate) ut.Translator {
-	if err := zh_translations.RegisterDefaultTranslations(validate, tra); err != nil {
+	if err := en_translations.RegisterDefaultTranslations(validate, tra); err != nil {
 		panic(err)
 	}
 	df := NewDefaultTranslations(useDefaultTranslation...)
