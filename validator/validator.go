@@ -3,7 +3,6 @@ package validator
 import (
 	"errors"
 	"fmt"
-	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"reflect"
 	"regexp"
@@ -30,29 +29,14 @@ func AddRegisterVal(tag string, v func(fl validator.FieldLevel) bool, useDefault
 	// 添加默认的翻译器
 	if useDefaultTra {
 		arr := NewDefaultTranslations(tag)
-		for i := range arr {
-			ii := i
-			if err := validate.RegisterTranslation(arr[ii].Tag, tra, func(ut ut.Translator) error {
-				return ut.Add(arr[ii].Tag, arr[ii].Format, arr[ii].IsOverride)
-			}, func(ut ut.Translator, fe validator.FieldError) string {
-				return arr[ii].Fuc(arr[ii].Tag, ut, fe)
-			}); err != nil {
-				return err
-			}
-		}
+		registerTranslation(arr...)
 		return nil
 	}
 	if len(t) == 0 {
 		return fmt.Errorf("需要自定义翻译器")
 	}
 	for i := range t {
-		if err := validate.RegisterTranslation(t[i].Tag, tra, func(ut ut.Translator) error {
-			return ut.Add(t[i].Tag, t[i].Format, t[i].IsOverride)
-		}, func(ut ut.Translator, fe validator.FieldError) string {
-			return t[i].Fuc(t[i].Tag, ut, fe)
-		}); err != nil {
-			return err
-		}
+		registerTranslation(t[i])
 		// 执行第一个就结束
 		return nil
 	}
@@ -61,38 +45,59 @@ func AddRegisterVal(tag string, v func(fl validator.FieldLevel) bool, useDefault
 
 // getCustomValidate 自定义validate
 func getCustomValidate() *validator.Validate {
+	var err error
 	validate = validator.New()
-
 	// 添加校验tag：RFC3339
-	validate.RegisterValidation("RFC3339", func(fl validator.FieldLevel) bool {
+	if err = validate.RegisterValidation("RFC3339", func(fl validator.FieldLevel) bool {
 		s := fl.Field().String()
 		_, err := String2Time(s)
 		if err != nil {
 			return false
 		}
 		return true
-	})
+	}); err != nil {
+		panic(err)
+	}
 	// 添加校验字符串为整数
-	validate.RegisterValidation("INTEGER", checkInt)
+	if err = validate.RegisterValidation("INTEGER", checkInt); err != nil {
+		panic(err)
+	}
 	// 添加校验tag：YYYY
-	validate.RegisterValidation("YYYY", checkYear)
+	if err = validate.RegisterValidation("YYYY", checkYear); err != nil {
+		panic(err)
+	}
 	// 添加校验tag：YYYYMMDD
-	validate.RegisterValidation("YYYYMMDD", checkDate)
+	if err = validate.RegisterValidation("YYYYMMDD", checkDate); err != nil {
+		panic(err)
+	}
 	// 添加校验tag：YYYYMM
-	validate.RegisterValidation("YYYYMM", checkMonth1)
+	if err = validate.RegisterValidation("YYYYMM", checkMonth1); err != nil {
+		panic(err)
+	}
 	// 添加校验tag：YYYY-MM
-	validate.RegisterValidation("YYYY-MM", checkMonth)
+	if err = validate.RegisterValidation("YYYY-MM", checkMonth); err != nil {
+		panic(err)
+	}
 	// 添加校验tag：YYYY-MM-DD
-	validate.RegisterValidation("YYYY-MM-DD", checkStrDate)
+	if err = validate.RegisterValidation("YYYY-MM-DD", checkStrDate); err != nil {
+		panic(err)
+	}
 	// 添加校验tag：hh:mm:ss
-	validate.RegisterValidation("hh:mm:ss", validateHMS)
+	if err = validate.RegisterValidation("hh:mm:ss", validateHMS); err != nil {
+		panic(err)
+	}
 	// 添加校验tag：hhmmss
-	validate.RegisterValidation("hhmmss", validateShortHMS)
+	if err = validate.RegisterValidation("hhmmss", validateShortHMS); err != nil {
+		panic(err)
+	}
 	// 添加校验tag：YYYY-MM-DD hh:mm:ss
-	validate.RegisterValidation("YYYY-MM-DD hh:mm:ss", validateYMDHMS)
+	if err = validate.RegisterValidation("YYYY-MM-DD hh:mm:ss", validateYMDHMS); err != nil {
+		panic(err)
+	}
 	//添加tag: isEmail
-	validate.RegisterValidation("isEmail", checkEmail)
-
+	if err = validate.RegisterValidation("isEmail", checkEmail); err != nil {
+		panic(err)
+	}
 	return validate
 }
 

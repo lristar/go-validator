@@ -71,15 +71,19 @@ func RegisterTranslations(validate *validator.Validate) ut.Translator {
 	}
 	df := NewDefaultTranslations(useDefaultTranslation...)
 	translationsArray = append(translationsArray, df...)
-	for i := range translationsArray {
+	registerTranslation(translationsArray...)
+	return tra
+}
+
+func registerTranslation(translations ...Translations) {
+	for i := range translations {
 		ii := i
-		if err := validate.RegisterTranslation(translationsArray[ii].Tag, tra, func(ut ut.Translator) error {
-			return ut.Add(translationsArray[ii].Tag, translationsArray[ii].Format, translationsArray[ii].IsOverride)
+		if err := validate.RegisterTranslation(translations[ii].Tag, tra, func(ut ut.Translator) error {
+			return ut.Add(translations[ii].Tag, translations[ii].Format, translations[ii].IsOverride)
 		}, func(ut ut.Translator, fe validator.FieldError) string {
-			return translationsArray[ii].Fuc(translationsArray[ii].Tag, ut, fe)
+			return translations[ii].Fuc(translations[ii].Tag, ut, fe)
 		}); err != nil {
 			panic(err)
 		}
 	}
-	return tra
 }
